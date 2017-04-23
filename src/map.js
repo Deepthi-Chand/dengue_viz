@@ -1,38 +1,57 @@
 import React, { Component } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { Map, TileLayer, GeoJSON } from 'react-leaflet';
-import state_json from "./india_telengana.geojson";
-import  {axios} from "./http_api.js";
+import stateJson from "./india_telengana.json";
+import dengueData from "./data.json";
 
 class DengueMap extends Component {
 
   componentWillMount() {
-    this.state = {state_json: {}};
-    axios.get(state_json).then(function(response) {
-      console.log(response.data);
-      this.setState({state_json: response.data});
-    }.bind(this)).catch(function(error) {
-      console.log(error);
-    });
-
     var container = document.getElementById("root");
     if(container) {
       var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
       container.style.height = h + "px";
     }
-
   }
 
   render() {
-    var url = 'http://{s}.tile.osm.org/{z}/{x}/{y}.png';
-    var attribution = '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
+    const url = 'http://{s}.tile.osm.org/{z}/{x}/{y}.png';
+    const attribution = '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
     const mapCenter = [20.5937, 78.9629];
     const zoomLevel = 4.5;
-    var props = this.props;
 
-    var mapStyle = function(feature) {
+    const getColor = function(d, selectedIndicator) {
+      if(d === "NA") {
+        return "#ff0";
+      }
+      return d > 1000 ? '#800026' :
+           d > 500  ? '#BD0026' :
+           d > 200  ? '#E31A1C' :
+           d > 100  ? '#FC4E2A' :
+           d > 50   ? '#FD8D3C' :
+           d > 20   ? '#FEB24C' :
+           d > 10   ? '#FED976' :
+                      '#FFEDA0';
+    }
+
+    var selectedIndicator = this.props.selectedIndicator;
+    var selectedYear = this.props.selectedYear;
+    const mapStyle = function(feature) {
+      const state = feature.properties.NAME_1;
+
+      var d = "NA";
+      if(dengueData !== undefined && dengueData[state] !== undefined) {
+        if(selectedIndicator === "cases") {
+          d = dengueData[state][selectedYear].C;
+        } else {
+          d = dengueData[state][selectedYear].D;
+        }
+      } else {
+        console.log(state + " doesn't seem to have any data");
+      }
+
       return {
-        fillColor: "#FD8D3C",
+        fillColor: getColor(d, selectedIndicator),
         weight: 2,
         opacity: 1,
         color: 'white',
@@ -41,12 +60,18 @@ class DengueMap extends Component {
       };
     };
 
-    var component = this;
-
-    var onEachFeature = function(feature, layer) {
-
+    const onEachFeature = function(feature, layer) {
+      const getMessage = function() {
+        const state = feature.properties.NAME_1;
+        if(dengueData !== undefined && dengueData[state] !== undefined) {
+          return "State: " + state + " : " + dengueData[state][selectedYear].C +
+           " Cases and " + dengueData[state][selectedYear].D + " deaths";
+        } else {
+          return "No data available";
+        }
+      }
+      layer.bindPopup(getMessage);
     }
-
 
     return(
       <Map id="state-map"
@@ -61,7 +86,7 @@ class DengueMap extends Component {
           attribution={attribution}
           url={url} />
         <GeoJSON
-          data={this.state.state_json}
+          data={stateJson}
           style={mapStyle}
           onEachFeature={onEachFeature}
           ref="geojson" />
