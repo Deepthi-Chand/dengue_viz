@@ -22,3 +22,13 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map_container, #state-map {
+    height: 100%;
+    width: 100%;
+}
