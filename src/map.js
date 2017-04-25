@@ -34,24 +34,24 @@ class DengueMap extends Component {
                       '#FFEDA0';
     }
 
-    var selectedIndicator = this.props.selectedIndicator;
-    var selectedYear = this.props.selectedYear;
+    const component = this;
+
     const mapStyle = function(feature) {
       const state = feature.properties.NAME_1;
 
       var d = "NA";
       if(dengueData !== undefined && dengueData[state] !== undefined) {
-        if(selectedIndicator === "cases") {
-          d = dengueData[state][selectedYear].C;
+        if(component.props.selectedIndicator === "cases") {
+          d = dengueData[state][component.props.selectedYear].C;
         } else {
-          d = dengueData[state][selectedYear].D;
+          d = dengueData[state][component.props.selectedYear].D;
         }
       } else {
         console.log(state + " doesn't seem to have any data");
       }
 
       return {
-        fillColor: getColor(d, selectedIndicator),
+        fillColor: getColor(d, component.props.selectedIndicator),
         weight: 2,
         opacity: 1,
         color: 'white',
@@ -64,8 +64,8 @@ class DengueMap extends Component {
       const getMessage = function() {
         const state = feature.properties.NAME_1;
         if(dengueData !== undefined && dengueData[state] !== undefined) {
-          return "State: " + state + " : " + dengueData[state][selectedYear].C +
-           " Cases and " + dengueData[state][selectedYear].D + " deaths";
+          return "State: " + state + " : " + dengueData[state][component.props.selectedYear].C +
+           " Cases and " + dengueData[state][component.props.selectedYear].D + " deaths";
         } else {
           return "No data available";
         }
