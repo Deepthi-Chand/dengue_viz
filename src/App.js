@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import {DengueMap} from "./map.js";
+import helpIcon from "./help.png";
 
 class App extends Component {
 
@@ -21,6 +22,10 @@ class App extends Component {
 
   indicatorOnChange(e) {
     this.setState({selectedIndicator: e.target.value});
+  }
+
+  helpIconOnClick(e) {
+    console.log("Help Icon clicked!");
   }
 
   render() {
@@ -44,6 +49,11 @@ class App extends Component {
               checked={this.state.selectedIndicator === "deaths"}
               onChange={this.indicatorOnChange.bind(this)} /> <label>Number of deaths</label>
           </div>
+        </div>
+        <div id="information-sidebar">
+          <a href="#" onClick={this.helpIconOnClick}><img id="helpIcon" src={helpIcon} height="15px" alt="Help" /></a>
+          <a href="https://github.com/Deepthi-Chand/dengue_viz"><img height="15px"
+            src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png" alt="Fork this on Github"/></a>
         </div>
         <DengueMap
           selectedYear={this.state.selectedYear}
